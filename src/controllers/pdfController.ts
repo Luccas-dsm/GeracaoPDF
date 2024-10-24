@@ -29,4 +29,33 @@ export class PdfController {
             res.status(500).send('Erro ao gerar PDF');
         }
     }
+
+    async htmlFileToPdf(req: Request, res: Response): Promise<void> {
+        try {
+            const { htmlContent, cssContent } = req.body; // Recebe HTML e CSS no body da requisição
+
+            if (!htmlContent) {
+                res.status(400).send('HTML content is required');
+                return;
+            }
+            let pdf = await this.geradorPdfService.generatePdfFromFile(htmlContent, cssContent);
+
+
+
+            // Converte o buffer em Base64
+            const pdfBase64 = pdf.toString('base64');
+
+            // Configurar os cabeçalhos da resposta
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', 'attachment; filename=result.pdf');
+
+            // Enviar o Base64 do PDF como resposta
+            res.send({ pdf: pdfBase64 });
+            
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            res.status(500).send('Erro ao gerar PDF');
+        }
+    }
 }
+

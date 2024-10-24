@@ -51,4 +51,40 @@ export class GeradorPdfService {
             await this.browser.close();
         }
     }
+
+
+    public async generatePdfFromFile(htmlContent: string, cssContent: string): Promise<Buffer> {
+        await this.initBrowser();
+        let page;
+        try {
+            // Cria uma nova página no navegador
+            page = await this.browser.newPage();
+
+            // Define o conteúdo HTML na página
+            await page.setContent(htmlContent, {
+                waitUntil: 'networkidle0',
+            });
+
+            // Injetar o CSS diretamente no <head> do documento
+            if (cssContent) {
+                await page.addStyleTag({ content: cssContent });
+            }
+
+            // Gera o PDF
+            const pdfBuffer: Buffer = await page.pdf({
+                margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
+                printBackground: true,
+                format: 'A4',
+            })as Buffer;
+
+            return pdfBuffer;
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            throw new Error('Falha ao gerar PDF');
+        } finally {
+            if (page) {
+                await page.close(); // Fechar a página para liberar memória
+            }
+        }
+    }
 }
