@@ -8,9 +8,10 @@ const port = 3000;
 const geradorPdfService = new GeradorPdfService();
 const pdfController = new PdfController(geradorPdfService);
 
-app.use(express.json());
 
+app.use(express.json({limit:'10mb'})); // for incoming Request Object as json
 
+app.use(express.urlencoded({limit:'10mb', extended: true })); // for content-type = application/ x-www-form-urlencoded
 app.get('/', (req: Request, res: Response) => {
   res.send('Servidor Express com TypeScript funcionando!');
 });
